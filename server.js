@@ -25,7 +25,7 @@ app.get('/api/notes', (req, res) => {
     let results = data.slice();
     if (req.query.searchTerm) {
         console.log(req.query.searchTerm);
-        results = results.filter( item => item.title.includes(req.query.searchTerm));
+        results = results.filter( item => item.title.toUpperCase().includes(req.query.searchTerm.toUpperCase()));
         
     }
     res.json(results);
