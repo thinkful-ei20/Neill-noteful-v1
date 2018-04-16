@@ -1,7 +1,30 @@
 'use strict';
 
+const express = require('express');
+
 const data = require('./db/notes');
 
-console.log('Hello Noteful!');
+const app = express();
+app.use(express.static('public'));
 
-// INSERT EXPRESS APP CODE HERE...
+app.get('/api/notes', (req, res) => {
+    res.json(data);
+});
+
+app.get('/api/notes/:id', (req, res) => {
+    const id = req.params.id;
+    const item = data[id];
+    console.log(id);
+    console.log(item);
+
+    res.json(data.find(x => 
+        x.id === parseInt(id)
+    ));
+});
+
+// Listen for incoming connections
+app.listen(8080, function () {
+    console.info(`Server listening on ${this.address().port}`);
+}).on('error', err => {
+    console.error(err);
+});
