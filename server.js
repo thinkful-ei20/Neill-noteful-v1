@@ -14,13 +14,13 @@ app.get('/api/notes', (req, res) => {
 app.get('/api/notes/:id', (req, res) => {
     const id = req.params.id;
     const item = data[id];
-    console.log(id);
-    console.log(item);
 
-    res.json(data.find(x => 
-        x.id === parseInt(id)
-    ));
+    res.json(data.find(x => {
+        return x.id === Number(id);
+    }));
 });
+
+
 
 // Listen for incoming connections
 app.listen(8080, function () {
