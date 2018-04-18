@@ -2,46 +2,40 @@
 
 const express = require('express');
 
+const { requestLogger } = require('./middleware/logger');
+
 const data = require('./db/notes');
+const simDB = require(`./db/simDB`);
+const notes = simDB.initialize(data);
 
 const { PORT } = require('./config');
 
-const { requestLogger } = require('./middleware/logger');
+
 
 const app = express();
 app.use(requestLogger);
 app.use(express.static('public'));
 
-app.get('/api/notes', (req, res) => {
 
-    const searchTerm = req.query.searchTerm;
 
-    if(searchTerm) {
-        let filteredList = data.filter(function(item) {
-            return item.title.includes(searchTerm);
-        });
-        res.json(filteredList);
-    } else {
-        res.json(data);
-    }
- 
+app.get('/api/notes', (req, res, next) => {
+    const { searchTerm } = req.query;
+
+    notes.filter(searchTerm, (err, list) => {
+        if (err) {
+            return next(err); // goes to error handler
+        }
+        res.json(list); // responds with filtered array
+    });
 });
 
-app.get('/boom', (req, res, next) => {
-    throw new Error('Boom!!');
+app.get(`/api/notes/:id`, (req, res, next) => {
+    const note = notes.find(req.params.id, (err, item) => {
+        if (err) return next(err);
+        res.json(item);
+    });
 });
 
-
-app.get('/api/notes/:id', (req, res, next) => {
-    const id = +req.params.id;    
-    const foundItem = data.find(item => item.id === id);
-
-    if(foundItem) {
-        res.json(foundItem);
-    } else {
-        next();
-    }  
-});
 
 // error handler
 app.use(function (req, res, next) {
@@ -50,15 +44,13 @@ app.use(function (req, res, next) {
     res.status(404).json({ message: 'Not Found' });
 });
 
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res, next,) {
     res.status(err.status || 500);
     res.json({
         message: err.message,
         error: err
     });
 });
-
-
 
 
 // Listen for incoming connections
