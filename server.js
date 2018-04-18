@@ -11,11 +11,17 @@ const notes = simDB.initialize(data);
 const { PORT } = require('./config');
 
 
-
+// Create an Express application
 const app = express();
+
+// Log all requests
 app.use(requestLogger);
+
+// Create a static webserver
 app.use(express.static('public'));
 
+// Parse request body
+app.use(express.json()); 
 
 
 app.get('/api/notes', (req, res, next) => {
@@ -35,6 +41,31 @@ app.get(`/api/notes/:id`, (req, res, next) => {
         res.json(item);
     });
 });
+
+app.put('/api/notes/:id', (req, res, next) => {
+    const id = req.params.id;
+
+    const updateObj = {};
+    const updateFields = ['title', 'content'];
+
+    updateFields.forEach(field => {
+        if (field in req.body) {
+            updateObj[field] = req.body[field];
+        }
+    });
+
+    notes.update(id, updateObj, (err, item) => {
+        if (err) {
+            return next(err);
+        }
+        if (item) {
+            res.json(item);
+        } else {
+            next();
+        }
+    });
+});
+
 
 
 // error handler
