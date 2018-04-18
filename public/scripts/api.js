@@ -2,7 +2,7 @@
 'use strict';
 
 const api = {
-  
+
     search: function (query, callback) {
         $.ajax({
             type: 'GET',
@@ -12,7 +12,16 @@ const api = {
             success: callback
         });
     },
-  
+
+    details: function (id, callback) {
+        $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            url: `/api/notes/${id}`,
+            success: callback
+        });
+    },
+
     update: function (id, obj, callback) {
         $.ajax({
             type: 'PUT',
@@ -24,13 +33,25 @@ const api = {
         });
     },
 
-
-    details: function (id, callback) {
+    create: function (obj, callback) {
         $.ajax({
-            type: 'GET',
+            type: 'POST',
+            url: '/api/notes',
+            contentType: 'application/json',
             dataType: 'json',
+            processData: false,
+            data: JSON.stringify(obj),
+            success: callback
+        });
+    },
+
+    remove: function (id, callback) {
+        return $.ajax({
+            type: 'DELETE',
             url: `/api/notes/${id}`,
+            dataType: 'json',
             success: callback
         });
     }
-}; 
+
+};
