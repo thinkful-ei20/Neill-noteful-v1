@@ -25,7 +25,7 @@ app.use(function (req, res, next) {
     res.status(404).json({ message: 'Not Found' });
 });
 
-app.use(function (err, req, res, next,) {
+app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.json({
         message: err.message,
@@ -35,8 +35,12 @@ app.use(function (err, req, res, next,) {
 
 
 // Listen for incoming connections
-app.listen(PORT, function () {
-    console.info(`Server listening on ${this.address().port}`);
-}).on('error', err => {
-    console.error(err);
-});
+if (require.main === module) {
+    app.listen(PORT, function () {
+        console.info(`Server listening on ${this.address().port}`);
+    }).on('error', err => {
+        console.error(err);
+    });
+}
+
+module.exports = app; // Export for testing
